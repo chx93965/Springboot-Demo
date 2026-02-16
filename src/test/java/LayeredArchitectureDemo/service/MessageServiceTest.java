@@ -36,7 +36,7 @@ public class MessageServiceTest {
     @BeforeEach
     public void reset(){
         message = new Message();
-        message.setMsgId(1L);
+        message.setId(1L);
     }
 
     /**
@@ -69,7 +69,7 @@ public class MessageServiceTest {
         doReturn(null).when(messageLib).get(2L);
 
         msgService.getMessageById(1L);
-        verify(messageLib, times(2)).get(1L);
+        verify(messageLib, times(1)).get(1L);
 
         try{
             msgService.getMessageById(2L);

@@ -1,6 +1,5 @@
 package LayeredArchitectureDemo.exception;
 
-import LayeredArchitectureDemo.exception.ErrorMessage.builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,13 +32,28 @@ public class GlobalExceptionHandler {
      * Returns customized exceptions
      */
     @ExceptionHandler(MessageException.class)
-    public ResponseEntity<ErrorMessage> messageException(MessageException e) {
-        return ErrorMessage.builder()
-            .timestamp(Instant.now())
-            .error(e.getErrorMessage().getError())
-            .path(request.getRequestURI())
-            .details(e.getErrorMessage().getDetails())
-            .build();
+    public ResponseEntity<ErrorResponse> messageException(MessageException e) {
+        return buildErrorResponse(
+                ErrorMessage.builder()
+                        .status(e.getErrorMessage().getStatus())
+                        .error(e.getErrorMessage().getError())
+                        .uri(request.getRequestURI())
+                        .timestamp(Instant.now())
+                        .build()
+        );
+    }
+
+    /**
+     * Casts error message to response
+     */
+    private ResponseEntity<ErrorResponse> buildErrorResponse(ErrorMessage errorMessage) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                errorMessage.getStatus().value(),
+                errorMessage.getError(),
+                request.getRequestURI(),
+                Instant.now()
+        );
+        return ResponseEntity.status(errorMessage.getStatus()).body(errorResponse);
     }
 
     /**
@@ -47,12 +61,14 @@ public class GlobalExceptionHandler {
      * Returns customized exceptions
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> exception(Exception e) {
+    public ResponseEntity<ErrorResponse> exception(Exception e) {
         LOG.error("Unknown exception:" + e);
-        return ErrorMessage.builder()
-            .timestamp(Instant.now())
-            .error(e.getMessage())
-            .path(request.getRequestURI())
-            .build();
+        return buildErrorResponse(
+                ErrorMessage.builder()
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .error(e.getMessage())
+                        .timestamp(Instant.now())
+                        .build()
+        );
     }
 }

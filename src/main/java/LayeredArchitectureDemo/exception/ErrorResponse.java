@@ -2,35 +2,34 @@ package LayeredArchitectureDemo.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
 /**
- * Error message among APIs
+ * Return format for API exceptions
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ErrorMessage {
-    private HttpStatus status;
+public class ErrorResponse {
+    private int status;
     private String error;
     private String uri;
     private Instant timestamp;
 
-    public ErrorMessage() {}
+    public ErrorResponse() {}
 
-    public ErrorMessage(HttpStatus status, String error, String uri, Instant timestamp) {
+    public ErrorResponse(int status, String error, String uri, Instant timestamp) {
         this.status = status;
         this.error = error;
         this.uri = uri;
         this.timestamp = timestamp;
     }
 
-    public HttpStatus getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -58,44 +57,9 @@ public class ErrorMessage {
         this.timestamp = timestamp;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private HttpStatus status;
-        private String error;
-        private String uri;
-        private Instant timestamp;
-
-        public Builder status(HttpStatus status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder error(String error) {
-            this.error = error;
-            return this;
-        }
-
-        public Builder uri(String uri) {
-            this.uri = uri;
-            return this;
-        }
-
-        public Builder timestamp(Instant timestamp) {
-            this.timestamp = timestamp;
-            return this;
-        }
-
-        public ErrorMessage build() {
-            return new ErrorMessage(status, error, uri, timestamp);
-        }
-    }
-
     @Override
     public String toString() {
-        return "ErrorMessage{" +
+        return "ErrorResponse{" +
                 "status=" + status +
                 ", error='" + error + '\'' +
                 ", uri='" + uri + '\'' +
