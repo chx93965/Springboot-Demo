@@ -1,4 +1,4 @@
-package LayeredArchitectureDemo.registry;
+package LayeredArchitectureDemo.repository;
 
 import LayeredArchitectureDemo.entity.Message;
 import org.springframework.context.annotation.Scope;

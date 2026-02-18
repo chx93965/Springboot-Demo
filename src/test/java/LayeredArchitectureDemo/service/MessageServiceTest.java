@@ -2,7 +2,7 @@ package LayeredArchitectureDemo.service;
 
 import LayeredArchitectureDemo.entity.Message;
 import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.registry.MessageLib;
+import LayeredArchitectureDemo.repository.MessageLib;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,22 +1,32 @@
 package LayeredArchitectureDemo.entity;
 
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * The message data processed within the application
  */
+@Table(name="tb_msg")
+@Entity
 public class Message {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     protected long id;
 
-    protected List<Object> data;
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "tb_data", joinColumns = @JoinColumn(name = "msg_id"))
+    @Column(nullable = false)
+    protected List<String> data;
 
+    @Column
     protected String info;
 
     public Message() {}
 
-    public Message(long id, List<Object> data, String info) {
+    public Message(long id, List<String> data, String info) {
         this.id = id;
         this.data = data;
         this.info = info;
@@ -30,11 +40,11 @@ public class Message {
         this.id = id;
     }
 
-    public List<Object> getData() {
+    public List<String> getData() {
         return data;
     }
 
-    public void setData(List<Object> data) {
+    public void setData(List<String> data) {
         this.data = data;
     }
 

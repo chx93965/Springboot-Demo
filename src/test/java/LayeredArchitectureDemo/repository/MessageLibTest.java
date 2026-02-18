@@ -1,4 +1,4 @@
-package LayeredArchitectureDemo.registry;
+package LayeredArchitectureDemo.repository;
 
 import LayeredArchitectureDemo.entity.Message;
 import com.fasterxml.jackson.core.JsonProcessingException;

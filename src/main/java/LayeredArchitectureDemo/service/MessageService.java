@@ -3,7 +3,7 @@ package LayeredArchitectureDemo.service;
 import LayeredArchitectureDemo.entity.Message;
 import LayeredArchitectureDemo.exception.ErrorMessage;
 import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.registry.MessageLib;
+import LayeredArchitectureDemo.repository.MessageLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
