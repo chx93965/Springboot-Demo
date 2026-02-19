@@ -1,17 +1,19 @@
 package LayeredArchitectureDemo.service;
 
 import LayeredArchitectureDemo.entity.Message;
+import LayeredArchitectureDemo.entity.dto.MessageDto;
 import LayeredArchitectureDemo.exception.ErrorMessage;
 import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.repository.MessageLib;
+import LayeredArchitectureDemo.repository.MessageRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Service provider of MessageController
@@ -19,22 +21,25 @@ import java.util.Set;
  * Messages are passed by reference
  */
 @Service
-public class MessageService {
+public class MessageService implements IMessageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
 
     @Autowired
-    private MessageLib messageLib;
+    private MessageRepo messageRepo;
 
 
     /**
      * gets all messages within the message library
      */
-    public synchronized List<Message> getMessage(){
-        List<Message> messageList = new ArrayList<>();
-        messageLib.getLibrary().forEach((id, message) -> {
-            messageList.add(message);
-        });
+    @Override
+    public synchronized List<MessageDto> getMessage(){
+        List<MessageDto> messageList = new ArrayList<>();
+        for (Message message: messageRepo.findAll()) {
+            MessageDto messageDto = new MessageDto();
+            BeanUtils.copyProperties(message, messageDto);
+            messageList.add(messageDto);
+        }
         LOG.debug("Requested: All messages");
         return messageList;
     }
@@ -43,82 +48,77 @@ public class MessageService {
      * gets a single message
      * @param id reference id
      */
-    public synchronized Message getMessageById(long id){
-        Message message = messageLib.get(id);
-        if (message == null) {
+    @Override
+    public synchronized MessageDto getMessageById(long id){
+        Message message = messageRepo.findById(id).orElseThrow(() -> {
             LOG.debug("Message #{} does not exist", id);
-            throw new MessageException(ErrorMessage.builder()
-                .error("Message #" + id + " does not exist")
-                .build());
-        }
+            return new MessageException(
+                    ErrorMessage.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .error("Message #" + id + " does not exist")
+                            .build());
+        });
+        MessageDto messageDto = new MessageDto();
+        BeanUtils.copyProperties(message, messageDto);
         LOG.debug("Requested: Message #{}", message);
-        return message;
+        return messageDto;
     }
 
     /**
      * posts a single message
-     * @param message the message to be posted
+     * @param messageDto the message to be posted
      */
-    public synchronized void postMessage(Message message){
-        long id = message.getId();
-        if (messageLib.contains(id)) {
-            LOG.debug("Message #{} already exists", id);
-            throw new MessageException(ErrorMessage.builder()
-                .error("Message #" + id + " already exists")
-                .build());
-        }
-        messageLib.put(message);
+    @Override
+    public synchronized void postMessage(MessageDto messageDto){
+        Message message = new Message();
+        BeanUtils.copyProperties(messageDto, message);
+        messageRepo.save(message);
         LOG.debug("Created: Message #{}", message);
     }
 
     /**
      * puts multiple messages
-     * @param messages all messages to be updated
+     * @param messageDto the message to be updated
      */
-    public synchronized void putMessage(Set<Message> messages){
-        List<Long> failures = new ArrayList<>();
-        messages.forEach((message) -> {
-            long id = message.getId();
-            try {
-                if (messageLib.contains(id)) {
-                    LOG.debug("Updated: Message #{}", message);
-                } else {
-                    LOG.debug("Created: Message #{}", message);
-                }
-                messageLib.put(message);
-            } catch (Exception e) {
-                failures.add(id);
-                LOG.error("Exception: {}", e.toString());
-            }
+    @Override
+    public synchronized void putMessage(long id, MessageDto messageDto){
+        Message message = messageRepo.findById(id).orElseThrow(() -> {
+            LOG.debug("Message #{} does not exist", id);
+            return new MessageException(
+                    ErrorMessage.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .error("Message #" + id + " does not exist")
+                            .build());
         });
-        if (!failures.isEmpty()) {
-            throw new MessageException(ErrorMessage.builder()
-                .error("Failed to update messages: ")
-                .build());
-        }
+        BeanUtils.copyProperties(messageDto, message);
+        message.setId(id);
+        messageRepo.save(message);
     }
 
     /**
      * deletes a single message
      * @param id reference message id
      */
+    @Override
     public synchronized void deleteMessage(long id){
-        Message message = messageLib.get(id);
-        if (message == null) {
+        Message message = messageRepo.findById(id).orElseThrow(() -> {
             LOG.debug("Message #{} does not exist", id);
-            throw new MessageException(ErrorMessage.builder()
-                .error("Message #" + id + " does not exist")
-                .build());
-        }
-        messageLib.remove(id);
+            return new MessageException(
+                    ErrorMessage.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .error("Message #" + id + " does not exist")
+                            .build());
+        });
+        messageRepo.deleteById(id);
         LOG.debug("Deleted: Message #{}", message);
     }
 
     /**
      * clears the message library
      */
+    @Override
     public synchronized void clearMessage(){
-        messageLib.clear();
+        messageRepo.deleteAll();
         LOG.debug("All messages cleared");
     }
 

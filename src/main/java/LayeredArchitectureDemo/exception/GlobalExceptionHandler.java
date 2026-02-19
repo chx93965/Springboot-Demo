@@ -44,19 +44,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Casts error message to response
-     */
-    private ResponseEntity<ErrorResponse> buildErrorResponse(ErrorMessage errorMessage) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                errorMessage.getStatus().value(),
-                errorMessage.getError(),
-                request.getRequestURI(),
-                Instant.now()
-        );
-        return ResponseEntity.status(errorMessage.getStatus()).body(errorResponse);
-    }
-
-    /**
      * Catches unknown exceptions not handled by the previous handlers
      * Returns customized exceptions
      */
@@ -70,5 +57,18 @@ public class GlobalExceptionHandler {
                         .timestamp(Instant.now())
                         .build()
         );
+    }
+
+    /**
+     * Casts error message to response
+     */
+    private ResponseEntity<ErrorResponse> buildErrorResponse(ErrorMessage errorMessage) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                errorMessage.getStatus().value(),
+                errorMessage.getError(),
+                request.getRequestURI(),
+                Instant.now()
+        );
+        return ResponseEntity.status(errorMessage.getStatus()).body(errorResponse);
     }
 }
