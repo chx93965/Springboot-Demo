@@ -1,8 +1,9 @@
 package LayeredArchitectureDemo.service;
 
 import LayeredArchitectureDemo.entity.Message;
+import LayeredArchitectureDemo.entity.dto.MessageDto;
 import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.repository.MessageLib;
+import LayeredArchitectureDemo.repository.MessageRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.*;
 
@@ -27,16 +29,21 @@ public class MessageServiceTest {
     MessageService msgService;
 
     @Mock
-    private MessageLib messageLib;
+    private MessageRepo messageRepo;
 
     private Message message;
+
+    private MessageDto messageDto;
 
     private ObjectMapper objMapper = new ObjectMapper();
 
     @BeforeEach
     public void reset(){
-        message = new Message();
-        message.setId(1L);
+        message = new Message(1L, new ArrayList<>(), "");
+        messageDto = new MessageDto();
+        messageDto.setId(message.getId());
+        messageDto.setData(message.getData());
+        messageDto.setInfo(message.getInfo());
     }
 
     /**
@@ -45,15 +52,13 @@ public class MessageServiceTest {
     @Test
     public void getMessage() throws JsonProcessingException {
 
-        HashMap<Long, Object> library = new HashMap<>();
-        library.put(1L, message);
-        doReturn(library).when(messageLib).getLibrary();
+        List<Message> messageList = new ArrayList<>(Arrays.asList(message));
+        doReturn(messageList).when(messageRepo).findAll();
 
-        List<Message> messageListActual = msgService.getMessage();
-        List<Message> messageListExpected = new ArrayList<>();
-        messageListExpected.add(message);
+        List<MessageDto> messageListActual = msgService.getMessage();
+        List<MessageDto> messageListExpected = new ArrayList<>(Arrays.asList(messageDto));
 
-        verify(messageLib, times(1)).getLibrary();
+        verify(messageRepo, times(1)).findAll();
         String expected = objMapper.writeValueAsString(messageListExpected);
         String actual = objMapper.writeValueAsString(messageListActual);
         assertThat(actual).isEqualTo(expected);
@@ -65,65 +70,52 @@ public class MessageServiceTest {
     @Test
     public void getMessageById(){
 
-        doReturn(message).when(messageLib).get(1L);
-        doReturn(null).when(messageLib).get(2L);
+        doReturn(Optional.of(message)).when(messageRepo).findById(1L);
+        doReturn(Optional.empty()).when(messageRepo).findById(2L);
 
         msgService.getMessageById(1L);
-        verify(messageLib, times(1)).get(1L);
+        verify(messageRepo, times(1)).findById(1L);
 
         try{
             msgService.getMessageById(2L);
         }catch (MessageException e){
             System.out.println(e);
         }
-        verify(messageLib, times(1)).get(2L);
+        verify(messageRepo, times(1)).findById(2L);
     }
 
     /**
-     * test {@link MessageService#postMessage(Message)}
+     * test {@link MessageService#postMessage(MessageDto)}
      */
     @Test
     public void postMessage(){
 
-        doReturn(false).when(messageLib).contains(1L);
-        doReturn(true).when(messageLib).contains(2L);
-        doNothing().when(messageLib).put(message);
+        doReturn(message).when(messageRepo).save(any(Message.class));
 
-        msgService.postMessage(message);
-        verify(messageLib, times(1)).contains(1L);
-        verify(messageLib, times(1)).put(message);
-
-        message.setId(2L);
-        try{
-            msgService.postMessage(message);
-        }catch (MessageException e){
-            System.out.println(e);
-        }
-        verify(messageLib, times(1)).contains(2L);
+        msgService.postMessage(messageDto);
+        verify(messageRepo, times(1)).save(message);
     }
 
     /**
-     * test {@link MessageService#putMessage(Set)}
+     * test {@link MessageService#putMessage(long, MessageDto)}
      */
     @Test
     public void putMessage(){
 
-        doReturn(false).when(messageLib).contains(1L);
-        doReturn(true).when(messageLib).contains(2L);
+        doReturn(Optional.of(message)).when(messageRepo).findById(1L);
+        doReturn(Optional.empty()).when(messageRepo).findById(2L);
+        doReturn(message).when(messageRepo).save(any(Message.class));
 
-        doNothing().when(messageLib).put(any(Message.class));
-        Set<Message> messages = new HashSet<>();
+        msgService.putMessage(messageDto.getId(), messageDto);
+        verify(messageRepo, times(1)).findById(1L);
+        verify(messageRepo, times(1)).save(message);
 
-        messages.add(message);
-        Message existingMessage = new Message();
-        existingMessage.setId(2L);
-        messages.add(existingMessage);
-        msgService.putMessage(messages);
-
-        verify(messageLib, times(1)).contains(1L);
-        verify(messageLib, times(1)).contains(2L);
-        verify(messageLib, times(1)).put(message);
-        verify(messageLib, times(1)).put(existingMessage);
+        try{
+            msgService.putMessage(2L, messageDto);
+        }catch (MessageException e){
+            System.out.println(e);
+        }
+        verify(messageRepo, times(1)).findById(2L);
     }
 
     /**
@@ -132,20 +124,18 @@ public class MessageServiceTest {
     @Test
     public void deleteMessage(){
 
-        doReturn(message).when(messageLib).get(1L);
-        doReturn(null).when(messageLib).get(2L);
-        doNothing().when(messageLib).remove(1L);
+        doNothing().when(messageRepo).deleteById(1L);
+        doThrow(new EmptyResultDataAccessException(1)).when(messageRepo).deleteById(2L);
 
         msgService.deleteMessage(1L);
-        verify(messageLib, times(1)).get(1L);
-        verify(messageLib, times(1)).remove(1L);
+        verify(messageRepo, times(1)).deleteById(1L);
 
         try{
             msgService.deleteMessage(2L);
         }catch (MessageException e){
             System.out.println(e);
         }
-        verify(messageLib, times(1)).get(2L);
+        verify(messageRepo, times(1)).deleteById(2L);
     }
 
     /**
@@ -154,10 +144,10 @@ public class MessageServiceTest {
     @Test
     public void clearMessages(){
 
-        doNothing().when(messageLib).clear();
+        doNothing().when(messageRepo).deleteAll();
 
         msgService.clearMessage();
-        verify(messageLib, times(1)).clear();
+        verify(messageRepo, times(1)).deleteAll();
     }
 
 }

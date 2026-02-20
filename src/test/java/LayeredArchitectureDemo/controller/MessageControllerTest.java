@@ -1,8 +1,9 @@
 package LayeredArchitectureDemo.controller;
 
 import LayeredArchitectureDemo.entity.Message;
+import LayeredArchitectureDemo.entity.dto.MessageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import LayeredArchitectureDemo.service.MessageService;
+import LayeredArchitectureDemo.service.IMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MessageControllerTest {
 
     @MockBean
-    private MessageService msgService;
+    private IMessageService msgService;
 
     private String url;
 
-    private Message message;
+    private MessageDto messageDto;
 
     @Autowired
     private ObjectMapper objMapper;
@@ -43,10 +44,10 @@ public class MessageControllerTest {
     @BeforeEach
     public void reset(){
         url = "";
-        message = new Message();
-        message.setId(1L);
-        message.setData(new ArrayList<>());
-        message.setInfo("");
+        messageDto = new MessageDto();
+        messageDto.setId(1L);
+        messageDto.setData(new ArrayList<>());
+        messageDto.setInfo("");
     }
 
     /**
@@ -55,7 +56,7 @@ public class MessageControllerTest {
     @Test
     public void getMessage() throws Exception {
 
-        List<Message> messageList = new ArrayList<>(Arrays.asList(message));
+        List<MessageDto> messageList = new ArrayList<>(Arrays.asList(messageDto));
         doReturn(messageList).when(msgService).getMessage();
 
         url = "http://localhost:8085/msg";
@@ -73,43 +74,43 @@ public class MessageControllerTest {
     @Test
     public void getMessageById() throws Exception {
 
-        doReturn(message).when(msgService).getMessageById(1L);
+        doReturn(messageDto).when(msgService).getMessageById(1L);
 
         url = "http://localhost:8085/msg/1";
         MockHttpServletResponse getMessageResponse = mvc.perform(get(url))
             .andExpect(status().isOk()).andReturn().getResponse();
 
-        String expected = objMapper.writeValueAsString(message);
+        String expected = objMapper.writeValueAsString(messageDto);
         String actual = getMessageResponse.getContentAsString();
         assertThat(actual).isEqualTo(expected);
     }
 
     /**
-     * test {@link MessageController#postMessage(Message)}
+     * test {@link MessageController#postMessage(MessageDto)}
      */
     @Test
     public void postMessage() throws Exception {
 
         url = "http://localhost:8085/msg";
         RequestBuilder request = post(url)
-            .content(objMapper.writeValueAsString(message))
+            .content(objMapper.writeValueAsString(messageDto))
             .contentType("application/json;charset=UTF-8");
 
-        doNothing().when(msgService).postMessage(any(Message.class));
+        doNothing().when(msgService).postMessage(any(MessageDto.class));
         mvc.perform(request).andExpect(status().isCreated());
     }
 
     /**
-     * test {@link MessageController#putMessage(Set)}
+     * test {@link MessageController#putMessage(long, MessageDto)}
      */
     @Test
     public void putMessage() throws Exception {
 
-        doNothing().when(msgService).putMessage(new HashSet<>());
+        doNothing().when(msgService).putMessage(1L, messageDto);
 
-        url = "http://localhost:8085/msg";
+        url = "http://localhost:8085/msg/1";
         RequestBuilder request = put(url)
-            .content(objMapper.writeValueAsString(new HashSet<>()))
+            .content(objMapper.writeValueAsString(messageDto))
             .contentType("application/json;charset=UTF-8");
         mvc.perform(request).andExpect(status().isOk());
     }

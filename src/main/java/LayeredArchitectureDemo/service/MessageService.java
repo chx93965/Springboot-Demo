@@ -101,16 +101,16 @@ public class MessageService implements IMessageService {
      */
     @Override
     public synchronized void deleteMessage(long id){
-        Message message = messageRepo.findById(id).orElseThrow(() -> {
-            LOG.debug("Message #{} does not exist", id);
-            return new MessageException(
+        try {
+            messageRepo.deleteById(id);
+        }catch (Exception e){
+            throw new MessageException(
                     ErrorMessage.builder()
                             .status(HttpStatus.BAD_REQUEST)
                             .error("Message #" + id + " does not exist")
                             .build());
-        });
-        messageRepo.deleteById(id);
-        LOG.debug("Deleted: Message #{}", message);
+        }
+        LOG.debug("Deleted: Message #{}", id);
     }
 
     /**
