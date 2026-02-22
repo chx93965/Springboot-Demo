@@ -1,6 +1,6 @@
-package LayeredArchitectureDemo.repository;
+package SpringbootDemo.repository;
 
-import LayeredArchitectureDemo.entity.Message;
+import SpringbootDemo.entity.Message;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

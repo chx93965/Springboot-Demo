@@ -8,4 +8,4 @@ spring:
 
 logging:
   level:
-    LayeredArchitectureDemo: info
+    SpringbootDemo: info

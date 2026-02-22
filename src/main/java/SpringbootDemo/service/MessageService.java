@@ -1,10 +1,10 @@
-package LayeredArchitectureDemo.service;
+package SpringbootDemo.service;
 
-import LayeredArchitectureDemo.entity.Message;
-import LayeredArchitectureDemo.entity.dto.MessageDto;
-import LayeredArchitectureDemo.exception.ErrorMessage;
-import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.repository.MessageRepo;
+import SpringbootDemo.entity.Message;
+import SpringbootDemo.entity.dto.MessageDto;
+import SpringbootDemo.exception.ErrorMessage;
+import SpringbootDemo.exception.MessageException;
+import SpringbootDemo.repository.MessageRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

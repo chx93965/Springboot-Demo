@@ -1,9 +1,9 @@
-package LayeredArchitectureDemo.controller;
+package SpringbootDemo.controller;
 
-import LayeredArchitectureDemo.entity.Message;
-import LayeredArchitectureDemo.entity.dto.MessageDto;
-import LayeredArchitectureDemo.service.IMessageService;
-import LayeredArchitectureDemo.repository.MessageRepo;
+import SpringbootDemo.entity.Message;
+import SpringbootDemo.entity.dto.MessageDto;
+import SpringbootDemo.service.IMessageService;
+import SpringbootDemo.repository.MessageRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 @Validated
 @RestController

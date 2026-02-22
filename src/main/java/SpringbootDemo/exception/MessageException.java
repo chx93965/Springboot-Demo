@@ -1,4 +1,4 @@
-package LayeredArchitectureDemo.exception;
+package SpringbootDemo.exception;
 
 public class MessageException extends RuntimeException {
     protected final ErrorMessage errorMessage;
