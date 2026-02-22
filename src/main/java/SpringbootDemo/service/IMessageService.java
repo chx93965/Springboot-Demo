@@ -1,9 +1,8 @@
-package LayeredArchitectureDemo.service;
+package SpringbootDemo.service;
 
-import LayeredArchitectureDemo.entity.dto.MessageDto;
+import SpringbootDemo.entity.dto.MessageDto;
 
 import java.util.List;
-import java.util.Set;
 
 public interface IMessageService {
 

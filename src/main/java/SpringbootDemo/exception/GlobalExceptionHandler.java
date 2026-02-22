@@ -1,4 +1,4 @@
-package LayeredArchitectureDemo.exception;
+package SpringbootDemo.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

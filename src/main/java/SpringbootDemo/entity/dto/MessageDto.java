@@ -1,4 +1,4 @@
-package LayeredArchitectureDemo.entity.dto;
+package SpringbootDemo.entity.dto;
 
 import org.hibernate.validator.constraints.Length;
 

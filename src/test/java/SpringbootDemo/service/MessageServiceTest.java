@@ -1,9 +1,9 @@
-package LayeredArchitectureDemo.service;
+package SpringbootDemo.service;
 
-import LayeredArchitectureDemo.entity.Message;
-import LayeredArchitectureDemo.entity.dto.MessageDto;
-import LayeredArchitectureDemo.exception.MessageException;
-import LayeredArchitectureDemo.repository.MessageRepo;
+import SpringbootDemo.entity.Message;
+import SpringbootDemo.entity.dto.MessageDto;
+import SpringbootDemo.exception.MessageException;
+import SpringbootDemo.repository.MessageRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

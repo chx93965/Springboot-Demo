@@ -1,9 +1,8 @@
-package LayeredArchitectureDemo.controller;
+package SpringbootDemo.controller;
 
-import LayeredArchitectureDemo.entity.Message;
-import LayeredArchitectureDemo.entity.dto.MessageDto;
+import SpringbootDemo.entity.dto.MessageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import LayeredArchitectureDemo.service.IMessageService;
+import SpringbootDemo.service.IMessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
