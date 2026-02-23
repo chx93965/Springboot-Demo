@@ -12,8 +12,15 @@ It was developed as a reference implementation of:
 - Exception handling
 - Application containerization with Docker
 
-## System Architecture
-![system_diagram.jpg](system_diagram.jpg)
+## Overview
+
+### System Architecture
+
+![spring-demo](./static/architecture.jpg "System Architecture")
+
+### Class Diagram
+
+![spring-demo](./static/class_diagram.png "Class Diagram")
 
 ### Layers
 

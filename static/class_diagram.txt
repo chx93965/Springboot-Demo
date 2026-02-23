@@ -1,0 +1,82 @@
+@startuml
+title Class Diagram - Spring-demo
+
+class MessageController {
+    - messageService : IMessageService
+    + getMessage() : List<MessageDto>
+    + getMessageById(id: Long) : MessageDto
+    + postMessage(messageDto: MessageDto) : void
+    + putMessage(id: Long, messageDto: MessageDto) : void
+    + deleteMessage(id: Long) : void
+    + clearMessage() : void
+}
+
+interface IMessageService {
+    + getMessage() : List<MessageDto>
+    + getMessageById(id: Long) : MessageDto
+    + postMessage(messageDto: MessageDto) : void
+    + putMessage(id: Long, messageDto: MessageDto) : void
+    + deleteMessage(id: Long) : void
+    + clearMessage() : void
+}
+
+class MessageService {
+    - messageRepo : MessageRepo
+    + getMessage() : List<MessageDto>
+    + getMessageById(id: Long) : MessageDto
+    + postMessage(messageDto: MessageDto) : void
+    + putMessage(id: Long, messageDto: MessageDto) : void
+    + deleteMessage(id: Long) : void
+    + clearMessage() : void
+
+interface MessageRepo
+
+class Message {
+    # id : Long
+    # data : List<String>
+    # info : String
+}
+
+class MessageDto {
+    # id : Long
+    # data : List<String>
+    # info : String
+}
+
+class MessageException {
+    # errorMessage : ErrorMessage
+}
+
+class ErrorMessage {
+    - status : HttpStatus
+    - error : String
+    - uri : String
+    - timestamp : Instant
+}
+
+class ErrorResponse {
+    - status : Int
+    - error : String
+    - uri : String
+    - timestamp : Instant
+}
+
+class GlobalExceptionHandler {
+	- request : HttpServletRequest
+	- buildErrorResponse(errorMessage: ErrorMessage) : ErrorResponse
+	+ messageException(e: MessageException) : ErrorResponse
+	+ exception(e: Exception) : ErrorResponse
+}
+
+MessageController --> IMessageService
+IMessageService <|.. MessageService
+MessageService --> MessageRepo
+MessageRepo --> Message
+MessageController --> MessageDto
+MessageService --> MessageDto
+MessageService --> MessageException
+MessageException --> GlobalExceptionHandler
+MessageException --> ErrorMessage
+GlobalExceptionHandler --> ErrorResponse
+GlobalExceptionHandler --> ErrorMessage
+@enduml

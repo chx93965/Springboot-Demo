@@ -24,7 +24,7 @@ public class MessageController {
     private static final Logger LOG = LoggerFactory.getLogger(MessageController.class);
 
     @Autowired
-    private IMessageService msgService;
+    private IMessageService messageService;
 
     /**
      * gets the general info of all messages within the message library
@@ -36,7 +36,7 @@ public class MessageController {
     public ResponseEntity<List<MessageDto>> getMessage() {
 
         LOG.trace("GET /msg called");
-        List<MessageDto> messageList = msgService.getMessage();
+        List<MessageDto> messageList = messageService.getMessage();
         return new ResponseEntity<>(messageList, HttpStatus.OK);
     }
 
@@ -53,7 +53,7 @@ public class MessageController {
             @PathVariable long id){
 
         LOG.trace("GET /msg/{id} called");
-        MessageDto messageDto = msgService.getMessageById(id);
+        MessageDto messageDto = messageService.getMessageById(id);
         return new ResponseEntity<>(messageDto, HttpStatus.OK);
     }
 
@@ -68,7 +68,7 @@ public class MessageController {
             @Valid @RequestBody MessageDto messageDto){
 
         LOG.trace("POST /msg called");
-        msgService.postMessage(messageDto);
+        messageService.postMessage(messageDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -87,7 +87,7 @@ public class MessageController {
             @Valid @RequestBody MessageDto messageDto){
 
         LOG.trace("PUT /msg called");
-        msgService.putMessage(id, messageDto);
+        messageService.putMessage(id, messageDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -103,7 +103,7 @@ public class MessageController {
             @PathVariable long id){
 
         LOG.trace("DELETE /msg/{id} called");
-        msgService.deleteMessage(id);
+        messageService.deleteMessage(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -116,7 +116,7 @@ public class MessageController {
     public ResponseEntity<Void> clearMessage(){
 
         LOG.trace("DELETE /msg called");
-        msgService.clearMessage();
+        messageService.clearMessage();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
