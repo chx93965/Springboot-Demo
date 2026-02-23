@@ -1,6 +1,14 @@
 
 # Springboot Demo
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Overview](#overview)
+- [Technical Stack](#technical-stack)
+- [Features](#features)
+- [User Guide](#user-guide)
+- [Deployment Guide](#deployment-guide)
+
 ## Introduction
 
 This is a Spring Boot application designed to demonstrate a layered architecture pattern in Java programming. The project uses a simple domain model to illustrate how responsibilities are separated across multiple layers to ensure loose coupling, maintainability, and scalability. 
