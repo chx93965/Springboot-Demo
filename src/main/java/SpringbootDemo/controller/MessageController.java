@@ -80,15 +80,15 @@ public class MessageController {
      * containing Messages that are not successfully updated
      */
     @PutMapping(value = "/{id}", consumes = "application/json")
-    public ResponseEntity<Void> putMessage(
+    public ResponseEntity<MessageDto> putMessage(
             @NotNull(message = "Message id cannot be null")
             @PathVariable long id,
             @NotNull(message = "Message cannot be null")
             @Valid @RequestBody MessageDto messageDto){
 
         LOG.trace("PUT /msg called");
-        messageService.putMessage(id, messageDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        MessageDto updated = messageService.putMessage(id, messageDto);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     /**

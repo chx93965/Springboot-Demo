@@ -9,11 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service provider of MessageController
@@ -33,13 +38,19 @@ public class MessageService implements IMessageService {
      * gets all messages within the message library
      */
     @Override
+    @Transactional  // open Hibernate session
+    @Cacheable(value = "messages_all")
     public synchronized List<MessageDto> getMessage(){
-        List<MessageDto> messageList = new ArrayList<>();
-        for (Message message: messageRepo.findAll()) {
-            MessageDto messageDto = new MessageDto();
-            BeanUtils.copyProperties(message, messageDto);
-            messageList.add(messageDto);
-        }
+        List<MessageDto> messageList = messageRepo.findAllByOrderByIdAsc()
+                .stream()
+                .map(msg -> {
+                    MessageDto dto = new MessageDto();
+                    dto.setId(msg.getId());
+                    dto.setInfo(msg.getInfo());
+                    dto.setData(new ArrayList<>(msg.getData()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
         LOG.debug("Requested: All messages");
         return messageList;
     }
@@ -49,6 +60,7 @@ public class MessageService implements IMessageService {
      * @param id reference id
      */
     @Override
+    @Cacheable(value = "messages", key = "#id")
     public synchronized MessageDto getMessageById(long id){
         Message message = messageRepo.findById(id).orElseThrow(() -> {
             LOG.debug("Message #{} does not exist", id);
@@ -69,6 +81,7 @@ public class MessageService implements IMessageService {
      * @param messageDto the message to be posted
      */
     @Override
+    @CacheEvict(value = {"messages_all"}, allEntries = true)
     public synchronized void postMessage(MessageDto messageDto){
         Message message = new Message();
         BeanUtils.copyProperties(messageDto, message);
@@ -81,7 +94,9 @@ public class MessageService implements IMessageService {
      * @param messageDto the message to be updated
      */
     @Override
-    public synchronized void putMessage(long id, MessageDto messageDto){
+    @CachePut(value = "messages", key = "#id")
+    @CacheEvict(value = "messages_all", allEntries = true)
+    public synchronized MessageDto putMessage(long id, MessageDto messageDto){
         Message message = messageRepo.findById(id).orElseThrow(() -> {
             LOG.debug("Message #{} does not exist", id);
             return new MessageException(
@@ -92,7 +107,11 @@ public class MessageService implements IMessageService {
         });
         BeanUtils.copyProperties(messageDto, message);
         message.setId(id);
-        messageRepo.save(message);
+        Message saved = messageRepo.save(message);
+
+        MessageDto result = new MessageDto();
+        BeanUtils.copyProperties(saved, result);
+        return result;
     }
 
     /**
@@ -100,6 +119,7 @@ public class MessageService implements IMessageService {
      * @param id reference message id
      */
     @Override
+    @CacheEvict(value = {"messages", "messages_all"}, key = "#id", allEntries = true)
     public synchronized void deleteMessage(long id){
         try {
             messageRepo.deleteById(id);
@@ -117,6 +137,7 @@ public class MessageService implements IMessageService {
      * clears the message library
      */
     @Override
+    @CacheEvict(value = {"messages","messages_all"}, allEntries = true)
     public synchronized void clearMessage(){
         messageRepo.deleteAll();
         LOG.debug("All messages cleared");

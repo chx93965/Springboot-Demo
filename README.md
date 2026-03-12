@@ -49,6 +49,7 @@ It was developed as a reference implementation of:
 | Spring Web      | REST API                   |
 | Spring Data JPA | ORM & database interaction |
 | Hibernate       | JPA implementation         |
+| Redis           | Cache                      | 
 | Postgre SQL     | Database                   |
 | Maven           | Dependency management      |
 | Docker          | Containerization           |
@@ -74,6 +75,8 @@ It was developed as a reference implementation of:
 - **Prerequisites**
   - JDK 1.8
   - Maven 3.6.x or above
+  - Redis 8.6-alpine
+  - PostgreSQL 17
   
 
 - **Build Project**
@@ -85,6 +88,15 @@ mvn clean install
 ```
 mvn clean install -Dmaven.test.skip
 ```
+
+- **Start Redis Service**
+  - Modify `src/main/resources/application.properties`
+    - Change `spring.redis.port` to desired Redis port
+
+  - For **Windows** systems
+    - Run on WSL
+    - Run Redis Docker image
+
 
 - **Start Application**
 ```
@@ -191,6 +203,20 @@ mvn test
       "info": "sample0-modified"
   }
   ```
+
+  **Sample Response**
+  ```json
+  {
+      "id": 0,
+      "data": [
+          "object0",
+          "object1",
+          "object2",
+          "object5"
+      ],
+      "info": "sample0-modified"
+  }
+  ```
   **Response Code**
   - 200 OK
   - 400 Bad Request
@@ -232,6 +258,8 @@ src/main/java/SpringbootDemo
 ├── entity
 │   ├── Message
 │   └── dto/MessageDto
+├── config
+│   └── RedisCacheConfig
 ├── exception
 │   ├── MessageException
 │   ├── ErrorMessage
@@ -291,8 +319,13 @@ CREATE TABLE tb_data (
   ```
   docker build -t spring-demo .
   ```
+  
+- **Start Redis Container**
+  ```
+  docker run -p 9000:6379 redis:8.6-alpine
+  ```
 
-- **Run Container**
+- **Run App Container**
   ```
   docker run -p 8085:8085 spring-demo
   ```
