@@ -53,12 +53,12 @@ public class MessageServiceTest {
     public void getMessage() throws JsonProcessingException {
 
         List<Message> messageList = new ArrayList<>(Arrays.asList(message));
-        doReturn(messageList).when(messageRepo).findAll();
+        doReturn(messageList).when(messageRepo).findAllByOrderByIdAsc();
 
         List<MessageDto> messageListActual = msgService.getMessage();
         List<MessageDto> messageListExpected = new ArrayList<>(Arrays.asList(messageDto));
 
-        verify(messageRepo, times(1)).findAll();
+        verify(messageRepo, times(1)).findAllByOrderByIdAsc();
         String expected = objMapper.writeValueAsString(messageListExpected);
         String actual = objMapper.writeValueAsString(messageListActual);
         assertThat(actual).isEqualTo(expected);

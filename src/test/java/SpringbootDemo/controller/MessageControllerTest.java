@@ -105,13 +105,21 @@ public class MessageControllerTest {
     @Test
     public void putMessage() throws Exception {
 
-        doNothing().when(msgService).putMessage(1L, messageDto);
+        // JSON deserialized into a new instance
+        doReturn(messageDto).when(msgService).putMessage(eq(1L),
+                any(MessageDto.class));
 
         url = "http://localhost:8085/msg/1";
         RequestBuilder request = put(url)
             .content(objMapper.writeValueAsString(messageDto))
             .contentType("application/json;charset=UTF-8");
-        mvc.perform(request).andExpect(status().isOk());
+
+        MockHttpServletResponse putMessageResponse = mvc.perform(request)
+                .andExpect(status().isOk()).andReturn().getResponse();
+
+        String expected = objMapper.writeValueAsString(messageDto);
+        String actual = putMessageResponse.getContentAsString();
+        assertThat(actual).isEqualTo(expected);
     }
 
     /**
